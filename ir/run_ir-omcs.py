@@ -1,7 +1,7 @@
 from models.spacy_based_ir import SpacyIR
 from models.bert_sts import BertSTSIR
 from models.bert_nli import BertNLIIR
-
+import os
 
 from tqdm import tqdm
 import argparse
@@ -11,15 +11,15 @@ import json
 
 def read_data_to_score(factfile,is_fact_fact=False,datasets=None):
     data = {}
-    base_dir = "../data/hypothesis/"
+    base_dir = os.environ['PREPARED_DATA'] + "/hypothesis/"
     if not is_fact_fact:
         fnames = datasets
     else:
-        base_dir = "../data/knowledge/"
+        base_dir = os.environ['PREPARED_DATA'] + "/knowledge/"
         fnames = ["openbook.txt"]
     
     facts = []
-    factlines = open("../data/knowledge/"+factfile,"r").readlines()
+    factlines = open(os.environ['PREPARED_DATA'] + "/knowledge/"+factfile,"r").readlines()
     for fact in tqdm(factlines,desc="Processing Facts:"):
         fact=fact.strip().replace('"',"")
         facts.append(fact)
@@ -43,7 +43,7 @@ def read_data_to_score(factfile,is_fact_fact=False,datasets=None):
    
 def read_preranked_file(fname):
     preranked = {}
-    lines = open("../data/ranked/"+fname,"r").readlines()
+    lines = open(os.environ['PREPARED_DATA'] + "/ranked/"+fname,"r").readlines()
     for line in tqdm(lines,desc="Reading Pretrained"):
         line = line.strip()
         row = json.loads(line)
@@ -64,16 +64,16 @@ for rankedfile in prerankedfiles:
         preranked = read_preranked_file(rankedfile)
         outputname = "sts.json" if "stsb" in modeldir else "trained.json"
         prefix = rankedfile.split(".")[0]
-        irmodel.predict(data,"../data/ranked/"+prefix+"-"+outputname,"/scratch/pbanerj6/hyptestvaltokens/"+prefix+"-"+outputname+".tokens",preranked=preranked)
+        irmodel.predict(data,os.environ['PREPARED_DATA'] + "/ranked/"+prefix+"-"+outputname,"/scratch/pbanerj6/hyptestvaltokens/"+prefix+"-"+outputname+".tokens",preranked=preranked)
 
 
 # irmodel = BertSTSIR(topk=50,output_dir="/scratch/pbanerj6/stsb_output",model="pytorch_model.bin.4",eval_batch_size=1024)
 # data = read_data_to_score("openbook.txt",datasets=datasets)
-# irmodel.predict(data,"../data/ranked/sts-factfact-orig.json","/scratch/pbanerj6/hyptestvaltokens/sts.tokens")
+# irmodel.predict(data,os.environ['PREPARED_DATA'] + "/ranked/sts-factfact-orig.json","/scratch/pbanerj6/hyptestvaltokens/sts.tokens")
 
 # model_path = "/scratch/pbanerj6/qnli_orig_output/"
 # model = "pytorch_model.bin.4"
-# outfile = "../data/ranked/qnli-openbook.json"
+# outfile = os.environ['PREPARED_DATA'] + "/ranked/qnli-openbook.json"
 # irmodel = BertNLIIR(topk=50,output_dir=model_path,model=model,eval_batch_size=2048)
 # data = read_data_to_score("openbook.txt",datasets=datasets)
 # irmodel.predict(data,outfile,"/scratch/pbanerj6/hyptestvaltokens/sts.tokens")

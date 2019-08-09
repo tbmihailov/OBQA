@@ -3,6 +3,7 @@ import collections
 import numpy as np
 from tqdm import tqdm
 import operator
+import os
 
 Entry = collections.namedtuple("Entry","qid fact1 fact2 hyp1 hyp2 hyp3 hyp4 ans label")
 

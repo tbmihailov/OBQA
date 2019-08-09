@@ -50,7 +50,7 @@ def get_train_facts(fact1,topk,ranked,knowlegde,knowledgemap):
     
 
 def read_data_to_train(topk,ranked,knowledge,knowledgemap,use_gold_f2=False):
-    tfile = "../data/generated/qa-"+str(topk)+str(use_gold_f2)+"-train.pickle"
+    tfile = os.environ['PREPARED_DATA'] + "/generated/qa-"+str(topk)+str(use_gold_f2)+"-train.pickle"
     if os.path.isfile(tfile):
         pickle_in = open(tfile,"rb")
         features = pickle.load(pickle_in)
@@ -58,7 +58,7 @@ def read_data_to_train(topk,ranked,knowledge,knowledgemap,use_gold_f2=False):
         if len(features)!=0:
             return features    
     data = {}
-    gold = open("../data/hypothesis/hyp-gold-train.tsv","r").readlines()
+    gold = open(os.environ['PREPARED_DATA'] + "/hypothesis/hyp-gold-train.tsv","r").readlines()
     idx=0
     for line in tqdm(gold,desc="Preparing Train Dataset:"):
         line = line.strip().split("\t")
@@ -86,7 +86,7 @@ def read_data_to_train(topk,ranked,knowledge,knowledgemap,use_gold_f2=False):
     return data
         
 def read_data_to_test(fname,topk,ranked,knowledge,knowledgemap,is_merged=False,use_gold_f2=False,cache=False):
-    vfile = "../data/generated/qa-"+str(topk)+"-"+fname+"-"+str(use_gold_f2)+".pickle" if not is_merged else "../data/generated/qa-merged-"+str(topk)+"-"+fname+"-"+str(use_gold_f2)+".pickle"
+    vfile = os.environ['PREPARED_DATA'] + "/generated/qa-"+str(topk)+"-"+fname+"-"+str(use_gold_f2)+".pickle" if not is_merged else os.environ['PREPARED_DATA'] + "/generated/qa-merged-"+str(topk)+"-"+fname+"-"+str(use_gold_f2)+".pickle"
     if os.path.isfile(vfile) and cache:
         pickle_in = open(vfile,"rb")
         features = pickle.load(pickle_in)
@@ -94,7 +94,7 @@ def read_data_to_test(fname,topk,ranked,knowledge,knowledgemap,is_merged=False,u
         if len(features)!=0:
             return features 
     data = {}
-    val = open("../data/hypothesis/"+fname,"r").readlines()
+    val = open(os.environ['PREPARED_DATA'] + "/hypothesis/"+fname,"r").readlines()
     for line in tqdm(val,desc="Preparing Test Dataset:"):
         line = line.strip().split("\t")
         qid = line[0]
@@ -123,8 +123,8 @@ def read_data_to_test(fname,topk,ranked,knowledge,knowledgemap,is_merged=False,u
     return data
 
 def gen_data_to_ir(fname,topk,ranked,knowledge,knowledgemap,is_merged=False): 
-    val = open("../data/hypothesis/"+fname,"r").readlines()
-    ofd = open("../data/merged/"+fname,"w+")
+    val = open(os.environ['PREPARED_DATA'] + "/hypothesis/"+fname,"r").readlines()
+    ofd = open(os.environ['PREPARED_DATA'] + "/merged/"+fname,"w+")
     for line in tqdm(val,desc="Preparing Train Dataset:"):
         line = line.strip().split("\t")
         qid = line[0]
@@ -224,15 +224,15 @@ use_gold_f2 = args.gold
 
 output_dir = "/scratch/pbanerj6/bertqa-"+exp+"-"+str(topk)+"-"+str(is_merged)+"-"+str(max_seq)+"/"
 
-ranked_factfact = read_ranked("../data/ranked/sts-factfact.json",topk=topk)
-ranked_trained = read_ranked("../data/ranked/sts-trained-openbook.json",topk=topk)
-# ranked_trained = read_ranked("../data/ranked/sts-openbook.json",topk=topk)
-# ranked_trained = read_ranked("../data/ranked/tfidf-openbook.json",topk=topk)
-knowledgemap,knowledge = read_knowledge("../data/knowledge/openbook.txt")
+ranked_factfact = read_ranked(os.environ['PREPARED_DATA'] + "/ranked/sts-factfact.json",topk=topk)
+ranked_trained = read_ranked(os.environ['PREPARED_DATA'] + "/ranked/sts-trained-openbook.json",topk=topk)
+# ranked_trained = read_ranked(os.environ['PREPARED_DATA'] + "/ranked/sts-openbook.json",topk=topk)
+# ranked_trained = read_ranked(os.environ['PREPARED_DATA'] + "/ranked/tfidf-openbook.json",topk=topk)
+knowledgemap,knowledge = read_knowledge(os.environ['PREPARED_DATA'] + "/knowledge/openbook.txt")
 
 
-# ranked_trained = read_ranked("../data/ranked/tfidf-omcs-trained.json",topk=topk)
-# knowledgemap,knowledge = read_knowledge("../data/knowledge/omcs.txt")
+# ranked_trained = read_ranked(os.environ['PREPARED_DATA'] + "/ranked/tfidf-omcs-trained.json",topk=topk)
+# knowledgemap,knowledge = read_knowledge(os.environ['PREPARED_DATA'] + "/knowledge/omcs.txt")
 
 if is_merged:
     ranked_trained = merge_ranked(ranked_trained)

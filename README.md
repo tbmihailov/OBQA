@@ -32,4 +32,13 @@ OBQA
 
 ## BERT QA models
 1. Runner and scorer are present
+
+
+
+## RUN MODELS
+
+Before running the models you need to set the env variable:
+```
+export PREPARED_DATA=~/research/data/obqa_careful_prepared
+```
     

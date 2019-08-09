@@ -8,6 +8,7 @@ from tqdm import tqdm
 import argparse
 import pickle
 import numpy as np
+import os
 
 def choose_model(topk=50):
     irmodel = SpacyIR(topk=50)
@@ -15,15 +16,15 @@ def choose_model(topk=50):
 
 def read_data_to_score(factfile,is_fact_fact=False,datasets=None):
     data = {}
-    base_dir = "../data/hypothesis/"
+    base_dir = os.environ['PREPARED_DATA'] + "/hypothesis/"
     if not is_fact_fact:
         fnames = datasets
     else:
-        base_dir = "../data/knowledge/"
+        base_dir = os.environ['PREPARED_DATA'] + "/knowledge/"
         fnames = ["openbook.txt"]
     
     facts = []
-    factlines = open("../data/knowledge/"+factfile,"r").readlines()
+    factlines = open(os.environ['PREPARED_DATA'] + "/knowledge/"+factfile,"r").readlines()
     for fact in tqdm(factlines,desc="Processing Facts:"):
         fact=fact.strip().replace('"',"")
         facts.append(fact)
@@ -55,32 +56,32 @@ datasets = ["hyp-ques-test.tsv","hyp-ques-val.tsv"]
     
 # irmodel = choose_model(topk=50)
 # data = read_data_to_score("openbook.txt")
-# pred_data(data,irmodel,"../data/ranked/scapy-openbook.json")
+# pred_data(data,irmodel,os.environ['PREPARED_DATA'] + "/ranked/scapy-openbook.json")
 
 # irmodel = BertSTSIR(topk=50,output_dir="/scratch/pbanerj6/stsb_output",model="pytorch_model.bin.3",eval_batch_size=256)
 # data = read_data_to_score("openbook.txt",is_fact_fact=True)
-# irmodel.predict(data,"../data/ranked/sts-factfact-orig.json","/scratch/pbanerj6/factfact.tokens")
+# irmodel.predict(data,os.environ['PREPARED_DATA'] + "/ranked/sts-factfact-orig.json","/scratch/pbanerj6/factfact.tokens")
 
 # irmodel = BertSTSIR(topk=50,output_dir="/scratch/pbanerj6/stsb_output",model="pytorch_model.bin.3",eval_batch_size=1024)
 # data = read_data_to_score("openbook.txt")
-# irmodel.predict(data,"../data/ranked/sts-openbook.json","/scratch/pbanerj6/hypfacttokens/nli.tokens")
+# irmodel.predict(data,os.environ['PREPARED_DATA'] + "/ranked/sts-openbook.json","/scratch/pbanerj6/hypfacttokens/nli.tokens")
 
 # irmodel = choose_model(topk=100)
 # data = read_data_to_score("omcs.txt",datasets=datasets)
-# irmodel.predict(data,"../data/ranked/scapy-omcs.json")
+# irmodel.predict(data,os.environ['PREPARED_DATA'] + "/ranked/scapy-omcs.json")
 
 
 # irmodel = BertSTSIR(topk=50,output_dir="/scratch/pbanerj6/stsb_output",model="pytorch_model.bin.4",eval_batch_size=1024)
 # data = read_data_to_score("openbook.txt",datasets=datasets)
-# irmodel.predict(data,"../data/ranked/sts-factfact-orig.json","/scratch/pbanerj6/hyptestvaltokens/sts.tokens")
+# irmodel.predict(data,os.environ['PREPARED_DATA'] + "/ranked/sts-factfact-orig.json","/scratch/pbanerj6/hyptestvaltokens/sts.tokens")
 
 # irmodel = BertCNNIR(topk=50,output_dir="/scratch/pbanerj6/sml-class-bert-large-cnn-full",model="best_model.bin",eval_batch_size=1024)
 # data = read_data_to_score("openbook.txt",datasets=datasets)
-# irmodel.predict(data,"../data/ranked/cnn-openbook.json","/scratch/pbanerj6/cnntokens/nli.tokens")
+# irmodel.predict(data,os.environ['PREPARED_DATA'] + "/ranked/cnn-openbook.json","/scratch/pbanerj6/cnntokens/nli.tokens")
 
 irmodel = BertNLIIR(topk=50,output_dir="/scratch/pbanerj6/sml-class-bert-large-v2-5e6-full",model="best_model.bin",eval_batch_size=1024)
 data = read_data_to_score("openbook.txt",datasets=datasets)
-irmodel.predict(data,"../data/ranked/simplebert-openbook.json","/scratch/pbanerj6/cnntokens/nli.tokens")
+irmodel.predict(data,os.environ['PREPARED_DATA'] + "/ranked/simplebert-openbook.json","/scratch/pbanerj6/cnntokens/nli.tokens")
 
 # model_path = "/scratch/pbanerj6/qnli_orig_output/"
 # model = "pytorch_model.bin.4"

@@ -349,7 +349,8 @@ class BertQA:
             model_to_save = model.module if hasattr(model, 'module') else model  # Only save the model it-self
             output_model_file = os.path.join(self.output_dir, "pytorch_model.bin." + str(ep))
             torch.save(model_to_save.state_dict(), output_model_file)
-            
+            print("saved output_model_file:{0}".format(output_model_file))
+
             # EVAL IN EACH EPOCH SAVE BEST MODEL as best_model.bin
             if val_dataloader:
                 self.score_qa(val_dataloader,val_index,data["val"],model,"val",ep,method)

@@ -222,7 +222,7 @@ is_merged = args.merged
 use_gold_f2 = args.gold
 
 
-output_dir = "/scratch/pbanerj6/bertqa-"+exp+"-"+str(topk)+"-"+str(is_merged)+"-"+str(max_seq)+"/"
+output_dir = "output/bertqa-"+exp+"-"+str(topk)+"-"+str(is_merged)+"-"+str(max_seq)+"/"
 
 ranked_factfact = read_ranked(os.environ['PREPARED_DATA'] + "/ranked/sts-factfact.json",topk=topk)
 ranked_trained = read_ranked(os.environ['PREPARED_DATA'] + "/ranked/sts-trained-openbook.json",topk=topk)
@@ -250,10 +250,11 @@ print_qa_inputs(traindata,"Train")
 print_qa_inputs(valdata,"Val")
 print_qa_inputs(testdata,"Test")
 
-model = BertQA( output_dir=output_dir,topk=topk,
+model = BertQA(output_dir=output_dir,topk=topk,
                  bert_model="bert-large-cased",do_lower_case=False,train_batch_size=32,seed=seed,
                  eval_batch_size=32,max_seq_length=max_seq,num_labels=4,grad_acc_steps=2,
                  num_of_epochs=epochs,action="train")
+
 
 data = { "train":traindata,"val":valdata, "test":[testdata]}
 

@@ -210,7 +210,12 @@ parser.add_argument('--epochs',
                         help="random seed for initialization")
 
 args = parser.parse_args()
-    
+
+print("")
+print("Arguments:")
+for k,v in args.__dict__.items():
+    print("{0}:{1}".format(k, v))
+
 exp = args.exp
 topk = args.topk
 max_seq = args.max_seq
@@ -223,6 +228,7 @@ use_gold_f2 = args.gold
 
 
 output_dir = "output/bertqa-"+exp+"-"+str(topk)+"-"+str(is_merged)+"-"+str(max_seq)+"/"
+print("output_dir:{0}".format(output_dir))
 
 ranked_factfact = read_ranked(os.environ['PREPARED_DATA'] + "/ranked/sts-factfact.json",topk=topk)
 ranked_trained = read_ranked(os.environ['PREPARED_DATA'] + "/ranked/sts-trained-openbook.json",topk=topk)

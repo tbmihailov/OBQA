@@ -45,7 +45,7 @@ Bert OBQA classifier
 
 ```
 job_name_base=obqa-bert
-job_name_specific=${job_name_base}-gold
+job_name_specific=${job_name_base}-gold-f2
 
 PREPARED_DATA_DIR=~/research/data/obqa_careful_prepared
 
@@ -104,7 +104,7 @@ Bert OBQA classifier
 
 ```
 job_name_base=obqa-bert
-job_name_specific=${job_name_base}-gold
+job_name_specific=${job_name_base}-predict
 
 PREPARED_DATA_DIR=~/research/data/obqa_careful_prepared
 
@@ -136,7 +136,7 @@ topk=2
 echo "$input_file"
 JOB_NAME=${job_name_specific}
 
-job_mem=60G
+job_mem=12G
 
 job_time=71:59:00   # HH:mm:ss
 

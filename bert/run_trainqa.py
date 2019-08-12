@@ -224,7 +224,7 @@ parser.add_argument("--mode",
                         help="mode can be train or eval")
 
 parser.add_argument("--output_model_dir",
-                        default="",
+                        default="AUTO",
                         type=str,
                         help="The output dir to save/load the model from ")
 
@@ -272,7 +272,11 @@ mode = "train"
 if args.mode and len(args.mode):
     mode = args.mode
 
-output_dir = "output/bertqa-"+exp+"-"+str(topk)+"-merge"+str(is_merged)+"-gold"+str(use_gold_f2)+"-"+str(max_seq)+"/"
+if args.output_model_dir != "AUTO":
+    output_dir = args.output_model_dir
+else:
+    output_dir = "output/bertqa-"+exp+"-"+str(topk)+"-merge"+str(is_merged)+"-gold"+str(use_gold_f2)+"-"+str(max_seq)+"/"
+
 logging.info("output_dir:{0}".format(output_dir))
 
 ranked_factfact = read_ranked(os.environ['PREPARED_DATA'] + "/ranked/sts-factfact.json",topk=topk)

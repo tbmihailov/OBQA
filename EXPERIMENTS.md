@@ -104,7 +104,7 @@ Bert OBQA classifier
 
 ```
 job_name_base=obqa-bert
-job_name_specific=${job_name_base}-predict
+job_name_specific=${job_name_base}-predict-comet
 
 PREPARED_DATA_DIR=~/research/data/obqa_careful_prepared
 
@@ -122,16 +122,21 @@ output_model_dir=output/bertqa-obqa-bert-gold-2-mergeFalse-goldFalse-128-bak/
 input_file_dev=hyp-ques-val.tsv
 input_file_test=hyp-ques-test.tsv
 
-knowledge_corpus_file=/home/mitarb/mihaylov/research/data/obqa_careful_prepared/knowledge/openbook.txt
-#knowledge_ranking_file=/home/mitarb/mihaylov/research/data/obqa_careful_prepared/ranked/sts-trained-openbook.json
-knowledge_ranking_file=/home/mitarb/paul/openqa/fact_1_graph_based_dev_test.json
+# IF you have a custom file - copy it to PREPARED_DATA_DIR/hypothesis/ and use only the base name
+#input_file_dev=comet_test_fact_1_fact_2.tsv
+#input_file_test=comet_test_fact_1_fact_2.tsv
 
-#gold_flag=--gold
-gold_flag=
+knowledge_corpus_file=/home/mitarb/mihaylov/research/data/obqa_careful_prepared/knowledge/openbook.txt
+knowledge_ranking_file=/home/mitarb/mihaylov/research/data/obqa_careful_prepared/ranked/sts-trained-openbook.json
+#knowledge_ranking_file=/home/mitarb/paul/openqa/fact_1_graph_based_dev_test.json
+#knowledge_ranking_file=/home/mitarb/paul/openqa/comet_test_fact_1_fact_2.tsv
+
+gold_flag=--gold
+#gold_flag=
 
 
 method=sum
-topk=2
+topk=0
 
 echo "$input_file"
 JOB_NAME=${job_name_specific}

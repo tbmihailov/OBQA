@@ -9,6 +9,9 @@ import collections
 import json
 import operator
 
+
+import logging
+
 Input = collections.namedtuple("Input","idx passage a b c d label")
 
 def read_ranked(fname,topk):
@@ -174,6 +177,11 @@ def print_qa_inputs(data,typ):
     for i in keys:
         print(data[i])
 
+logging.basicConfig(format = '%(asctime)s - %(levelname)s - %(name)s -   %(message)s',
+                    datefmt = '%m/%d/%Y %H:%M:%S',
+                    level = logging.INFO)
+logger = logging.getLogger(__name__)
+
         
 parser = argparse.ArgumentParser()
 
@@ -209,12 +217,45 @@ parser.add_argument('--epochs',
                         default=5,
                         help="random seed for initialization")
 
+# add as input params
+parser.add_argument("--mode",
+                        default="train",
+                        type=str,
+                        help="mode can be train or eval")
+
+parser.add_argument("--output_model_dir",
+                        default="",
+                        type=str,
+                        help="The output dir to save/load the model from ")
+
+parser.add_argument("--input_file_dev",
+                        default="hyp-gold-val.tsv",
+                        required=False,
+                        help="Input file for dev")
+
+parser.add_argument("--input_file_test",
+                        default="hyp-gold-test.tsv",
+                        required=False,
+                        help="Input file for test")
+
+
+parser.add_argument("--knowledge_corpus_file",
+                        default=os.environ['PREPARED_DATA'] + "/knowledge/openbook.txt",
+                        required=False,
+                        help="Input file for the knowledge corpus. Ex. openbook.txt")
+
+parser.add_argument("--knowledge_ranking_file",
+                        default=os.environ['PREPARED_DATA'] + "/ranked/sts-trained-openbook.json",
+                        required=False,
+                        help="Input file for knowledge ranking. Ex. tfidf-openbook.json")
+
+
 args = parser.parse_args()
 
-print("")
-print("Arguments:")
+logging.info("")
+logging.info("Arguments:")
 for k,v in args.__dict__.items():
-    print("{0}:{1}".format(k, v))
+    logging.info("{0}:{1}".format(k, v))
 
 exp = args.exp
 topk = args.topk
@@ -226,15 +267,19 @@ method = args.method
 is_merged = args.merged
 use_gold_f2 = args.gold
 
+# load input params
+mode = "train"
+if args.mode and len(args.mode):
+    mode = args.mode
 
-output_dir = "output/bertqa-"+exp+"-"+str(topk)+"-"+str(is_merged)+"-"+str(max_seq)+"/"
-print("output_dir:{0}".format(output_dir))
+output_dir = "output/bertqa-"+exp+"-"+str(topk)+"-merge"+str(is_merged)+"-gold"+str(use_gold_f2)+"-"+str(max_seq)+"/"
+logging.info("output_dir:{0}".format(output_dir))
 
 ranked_factfact = read_ranked(os.environ['PREPARED_DATA'] + "/ranked/sts-factfact.json",topk=topk)
-ranked_trained = read_ranked(os.environ['PREPARED_DATA'] + "/ranked/sts-trained-openbook.json",topk=topk)
+ranked_trained = read_ranked(args.knowledge_ranking_file, topk=topk)
 # ranked_trained = read_ranked(os.environ['PREPARED_DATA'] + "/ranked/sts-openbook.json",topk=topk)
 # ranked_trained = read_ranked(os.environ['PREPARED_DATA'] + "/ranked/tfidf-openbook.json",topk=topk)
-knowledgemap,knowledge = read_knowledge(os.environ['PREPARED_DATA'] + "/knowledge/openbook.txt")
+knowledgemap,knowledge = read_knowledge(args.knowledge_corpus_file)
 
 
 # ranked_trained = read_ranked(os.environ['PREPARED_DATA'] + "/ranked/tfidf-omcs-trained.json",topk=topk)
@@ -245,29 +290,38 @@ if is_merged:
 
 # gen_data_to_ir("hyp-gold-val.tsv",topk,ranked_trained,knowledge,knowledgemap,is_merged=is_merged)
 # gen_data_to_ir("hyp-gold-test.tsv",topk,ranked_trained,knowledge,knowledgemap,is_merged=is_merged)
-    
-traindata = read_data_to_train(topk,ranked_factfact,knowledge,knowledgemap,use_gold_f2=use_gold_f2)
-valdata = read_data_to_test("hyp-gold-val.tsv",topk,ranked_trained,knowledge,knowledgemap,is_merged=is_merged,use_gold_f2=use_gold_f2)
-testdata = read_data_to_test("hyp-gold-test.tsv",topk,ranked_trained,knowledge,knowledgemap,is_merged=is_merged,use_gold_f2=use_gold_f2)
+
+traindata = None
+if mode == "train":
+    traindata = read_data_to_train(topk,ranked_factfact,knowledge,knowledgemap,use_gold_f2=use_gold_f2)
+
+valdata = read_data_to_test(args.input_file_dev, topk,ranked_trained,knowledge,knowledgemap,is_merged=is_merged,use_gold_f2=use_gold_f2)
+testdata = read_data_to_test(args.input_file_test, topk,ranked_trained,knowledge,knowledgemap,is_merged=is_merged,use_gold_f2=use_gold_f2)
 # valdata = read_data_to_test("hyp-gold-val-quant.tsv",topk,ranked_trained,knowledge,knowledgemap,is_merged=is_merged)
 # testdata = read_data_to_test("hyp-gold-test-quant.tsv",topk,ranked_trained,knowledge,knowledgemap,is_merged=is_merged)
 
-print_qa_inputs(traindata,"Train")
+if traindata is not None:
+    print_qa_inputs(traindata,"Train")
+else:
+    logging.info("EVALUATION ONLY!...")
+
 print_qa_inputs(valdata,"Val")
 print_qa_inputs(testdata,"Test")
 
+bert_action = "train" if mode =="train" else "predict"
 model = BertQA(output_dir=output_dir,topk=topk,
                  bert_model="bert-large-cased",do_lower_case=False,train_batch_size=32,seed=seed,
                  eval_batch_size=32,max_seq_length=max_seq,num_labels=4,grad_acc_steps=2,
-                 num_of_epochs=epochs,action="train")
+                 num_of_epochs=epochs,action=bert_action)
 
+if traindata is not None:
+    # training bert
+    logging.info("TRAINING BERT...")
+    data = {"train":traindata,"val":valdata, "test":[testdata]}
+    best = model.train(data, method)
+else:
+    logging.info("PREDICTING...")
+    data = {"val": valdata, "test": [testdata]}
 
-data = { "train":traindata,"val":valdata, "test":[testdata]}
+    model.predict(data)
 
-best = model.train(data,method)
-
-# model = BertQA( output_dir=output_dir,topk=topk,
-#                  bert_model="bert-large-cased",do_lower_case=False,train_batch_size=64,seed=seed,
-#                  eval_batch_size=64,max_seq_length=max_seq,num_labels=4,grad_acc_steps=2,
-#                  num_of_epochs=epochs,action="predict")
-# model.predict(data)

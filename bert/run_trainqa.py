@@ -330,7 +330,7 @@ if traindata is not None:
     best = model.train(data, method)
 else:
     logging.info("PREDICTING...")
-    data = {"val": valdata, "test": [testdata]}
+    data = {"val": valdata, "test": testdata}
 
     model.predict(data)
 

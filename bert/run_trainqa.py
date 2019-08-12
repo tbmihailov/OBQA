@@ -308,7 +308,7 @@ else:
 print_qa_inputs(valdata,"Val")
 print_qa_inputs(testdata,"Test")
 
-bert_action = "train" if mode =="train" else "predict"
+bert_action = "train" if mode == "train" else "predict"
 model = BertQA(output_dir=output_dir,topk=topk,
                  bert_model="bert-large-cased",do_lower_case=False,train_batch_size=32,seed=seed,
                  eval_batch_size=32,max_seq_length=max_seq,num_labels=4,grad_acc_steps=2,

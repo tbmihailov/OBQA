@@ -53,13 +53,14 @@ def get_train_facts(fact1,topk,ranked,knowlegde,knowledgemap):
     
 
 def read_data_to_train(topk,ranked,knowledge,knowledgemap,use_gold_f2=False):
-    tfile = os.environ['PREPARED_DATA'] + "/generated/qa-"+str(topk)+str(use_gold_f2)+"-train.pickle"
-    if os.path.isfile(tfile):
-        pickle_in = open(tfile,"rb")
-        features = pickle.load(pickle_in)
-        pickle_in.close()
-        if len(features)!=0:
-            return features    
+    # tfile = os.environ['PREPARED_DATA'] + "/generated/qa-"+str(topk)+str(use_gold_f2)+"-train.pickle"
+    # if os.path.isfile(tfile):
+    #     pickle_in = open(tfile,"rb")
+    #     features = pickle.load(pickle_in)
+    #     pickle_in.close()
+    #     if len(features)!=0:
+    #         return features
+
     data = {}
     gold = open(os.environ['PREPARED_DATA'] + "/hypothesis/hyp-gold-train.tsv","r").readlines()
     idx=0
@@ -233,6 +234,11 @@ parser.add_argument("--output_model_dir",
                         type=str,
                         help="The output dir to save/load the model from ")
 
+parser.add_argument("--input_file_train",
+                        default="hyp-gold-train.tsv",
+                        required=False,
+                        help="Input file for dev")
+
 parser.add_argument("--input_file_dev",
                         default="hyp-gold-val.tsv",
                         required=False,
@@ -326,7 +332,7 @@ model = BertQA(output_dir=output_dir,topk=topk,
 if traindata is not None:
     # training bert
     logging.info("TRAINING BERT...")
-    data = {"train":traindata,"val":valdata, "test":[testdata]}
+    data = {"train": traindata,"val": valdata, "test":[testdata]}
     best = model.train(data, method)
 else:
     logging.info("PREDICTING...")

@@ -84,19 +84,20 @@ def read_data_to_train(topk,ranked,knowledge,knowledgemap,use_gold_f2=False):
             data[idx]=Input(idx=idx,passage=premise,a=choices[0],b=choices[1],c=choices[2],d=choices[3],label=int(label))
         ##To make balanced dataset, repeating right answer 2 more times.
         idx+=1
-    pickle_out = open(tfile,"wb+") 
-    pickle.dump(data, pickle_out)                                 
-    pickle_out.close()
+    # pickle_out = open(tfile,"wb+")
+    # pickle.dump(data, pickle_out)
+    # pickle_out.close()
     return data
         
 def read_data_to_test(fname,topk,ranked,knowledge,knowledgemap,is_merged=False,use_gold_f2=False,cache=False):
-    vfile = os.environ['PREPARED_DATA'] + "/generated/qa-"+str(topk)+"-"+fname+"-"+str(use_gold_f2)+".pickle" if not is_merged else os.environ['PREPARED_DATA'] + "/generated/qa-merged-"+str(topk)+"-"+fname+"-"+str(use_gold_f2)+".pickle"
-    if os.path.isfile(vfile) and cache:
-        pickle_in = open(vfile,"rb")
-        features = pickle.load(pickle_in)
-        pickle_in.close()
-        if len(features)!=0:
-            return features 
+    # vfile = os.environ['PREPARED_DATA'] + "/generated/qa-"+str(topk)+"-"+fname+"-"+str(use_gold_f2)+".pickle" if not is_merged else os.environ['PREPARED_DATA'] + "/generated/qa-merged-"+str(topk)+"-"+fname+"-"+str(use_gold_f2)+".pickle"
+    # if os.path.isfile(vfile) and cache:
+    #     pickle_in = open(vfile,"rb")
+    #     features = pickle.load(pickle_in)
+    #     pickle_in.close()
+    #     if len(features)!=0:
+    #         return features
+
     data = {}
     val = open(os.environ['PREPARED_DATA'] + "/hypothesis/"+fname,"r").readlines()
     for line in tqdm(val,desc="Preparing Test Dataset:"):
@@ -126,9 +127,9 @@ def read_data_to_test(fname,topk,ranked,knowledge,knowledgemap,is_merged=False,u
                     premise = premise + " . " + knowledge[fidx[0]]
                 data[qidx]=Input(idx=qidx,passage=premise,a=choices[0],b=choices[1],c=choices[2],d=choices[3],label=int(label))
     
-    pickle_out = open(vfile,"wb+") 
-    pickle.dump(data, pickle_out)                                 
-    pickle_out.close()
+    # pickle_out = open(vfile,"wb+")
+    # pickle.dump(data, pickle_out)
+    # pickle_out.close()
     return data
 
 def gen_data_to_ir(fname,topk,ranked,knowledge,knowledgemap,is_merged=False): 

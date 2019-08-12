@@ -105,10 +105,12 @@ def read_data_to_test(fname,topk,ranked,knowledge,knowledgemap,is_merged=False,u
         choices = line[2:6]
         label = line[6]
         ans = choices[int(label)]
-        fact1 = passage[0].strip()
-        fact2 = ""
-        if len(passage) > 1:
-            fact2 = passage[1].strip()
+        # fact1 = ""
+        # if len(passage) > 0:
+        #     fact1 = passage[0].strip()
+        # fact2 = ""
+        # if len(passage) > 1:
+        #     fact2 = passage[1].strip()
 
         if use_gold_f2:
             premise = line[1]
